@@ -11,6 +11,7 @@ export function StepEntityType() {
   if (!data.country) return null;
 
   const jurisdiction = getJurisdiction(data.country);
+  if (!jurisdiction) return null;
   const entityTypes = getEntityTypes(data.country);
 
   function selectEntityType(code: EntityTypeCode) {

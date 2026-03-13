@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useChat } from "ai/react";
 import { AGENTS, type AgentRole } from "@/types/agent";
 import { cn } from "@/lib/utils";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 const colorMap: Record<string, { bg: string; text: string }> = {
   emerald: { bg: "bg-emerald-500/10", text: "text-emerald-600" },
@@ -19,10 +19,15 @@ export default function AgentChatPage() {
   const agent = AGENTS[agentId];
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const [error, setError] = useState<string | null>(null);
+
   const { messages, input, handleInputChange, handleSubmit, isLoading, setInput } =
     useChat({
       api: "/api/chat",
       body: { agentRole: agentId },
+      onError: (err) => {
+        setError(err.message || "Something went wrong. Please try again.");
+      },
     });
 
   useEffect(() => {
@@ -145,6 +150,12 @@ export default function AgentChatPage() {
                 <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce delay-200" />
               </div>
             </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center text-sm text-red-500 py-2">
+            {error}
           </div>
         )}
 

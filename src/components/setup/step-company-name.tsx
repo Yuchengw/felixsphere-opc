@@ -11,6 +11,7 @@ export function StepCompanyName() {
   if (!data.country || !data.entityType) return null;
 
   const jurisdiction = getJurisdiction(data.country);
+  if (!jurisdiction) return null;
   const entityType = jurisdiction.entityTypes.find((e) => e.code === data.entityType);
   const suffix = entityType?.nameSuffix ?? "";
   const preview = suffix ? `${name || "Your Company"} ${suffix}` : name || "Your Company";

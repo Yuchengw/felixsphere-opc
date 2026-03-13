@@ -42,25 +42,37 @@ function TasksContent() {
   }, []);
 
   async function fetchTasks() {
-    const res = await fetch("/api/tasks");
-    const data = await res.json();
-    setTasks(data.tasks || []);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/tasks");
+      if (!res.ok) throw new Error("Failed to fetch tasks");
+      const data = await res.json();
+      setTasks(data.tasks || []);
+    } catch (error) {
+      console.error("Failed to fetch tasks:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function toggleTask(taskId: string, currentStatus: string) {
     const newStatus = currentStatus === "COMPLETED" ? "PENDING" : "COMPLETED";
+    const previousTasks = tasks;
     setTasks((prev) =>
       prev.map((t) =>
         t.id === taskId ? { ...t, status: newStatus as TaskStatus } : t
       )
     );
 
-    await fetch("/api/tasks", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ taskId, status: newStatus }),
-    });
+    try {
+      const res = await fetch("/api/tasks", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ taskId, status: newStatus }),
+      });
+      if (!res.ok) throw new Error("Failed to update task");
+    } catch {
+      setTasks(previousTasks);
+    }
   }
 
   const filtered = tasks.filter((t) => {

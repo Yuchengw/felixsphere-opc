@@ -11,10 +11,12 @@ export default function RoadmapPage() {
 
   useEffect(() => {
     async function fetchData() {
+      try {
       const [tasksRes, milestonesRes] = await Promise.all([
         fetch("/api/tasks"),
         fetch("/api/roadmap"),
       ]);
+      if (!tasksRes.ok || !milestonesRes.ok) throw new Error("Failed to fetch data");
       const { tasks } = await tasksRes.json();
       const { milestones } = await milestonesRes.json();
 
@@ -35,7 +37,11 @@ export default function RoadmapPage() {
       });
 
       setStages(progressData);
-      setLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch roadmap data:", error);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
   }, []);

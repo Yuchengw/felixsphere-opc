@@ -14,6 +14,7 @@ export function StepReview() {
   if (!data.country || !data.entityType || !data.companyName) return null;
 
   const jurisdiction = getJurisdiction(data.country);
+  if (!jurisdiction) return null;
   const entityType = jurisdiction.entityTypes.find((e) => e.code === data.entityType);
   const suffix = entityType?.nameSuffix ?? "";
   const fullName = suffix ? `${data.companyName} ${suffix}` : data.companyName;

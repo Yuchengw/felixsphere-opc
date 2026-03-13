@@ -1,15 +1,17 @@
-import type { CountryCode, JurisdictionConfig } from "@/types/company";
+import type { CountryCode, EntityTypeCode, JurisdictionConfig } from "@/types/company";
 import { usJurisdiction } from "./us";
 import { ukJurisdiction } from "./uk";
 import { indiaJurisdiction } from "./india";
 
-export const jurisdictions: Record<CountryCode, JurisdictionConfig> = {
+const availableJurisdictions: Partial<Record<CountryCode, JurisdictionConfig>> = {
   US: usJurisdiction,
   UK: ukJurisdiction,
   IN: indiaJurisdiction,
-  SG: usJurisdiction, // Placeholder - to be implemented
-  DE: usJurisdiction, // Placeholder - to be implemented
 };
+
+export function getJurisdiction(countryCode: CountryCode): JurisdictionConfig | null {
+  return availableJurisdictions[countryCode] ?? null;
+}
 
 export const supportedCountries: { code: CountryCode; name: string; flag: string; available: boolean }[] = [
   { code: "US", name: "United States", flag: "\u{1F1FA}\u{1F1F8}", available: true },
@@ -19,28 +21,28 @@ export const supportedCountries: { code: CountryCode; name: string; flag: string
   { code: "DE", name: "Germany", flag: "\u{1F1E9}\u{1F1EA}", available: false },
 ];
 
-export function getJurisdiction(countryCode: CountryCode): JurisdictionConfig {
-  return jurisdictions[countryCode];
-}
-
 export function getEntityTypes(countryCode: CountryCode) {
-  return jurisdictions[countryCode].entityTypes;
+  const config = availableJurisdictions[countryCode];
+  return config?.entityTypes ?? [];
 }
 
 export function getChecklistForEntity(countryCode: CountryCode, entityType: string) {
-  const config = jurisdictions[countryCode];
+  const config = availableJurisdictions[countryCode];
+  if (!config) return [];
   return config.checklistItems.filter((item) =>
-    item.requiredFor.includes(entityType as never)
+    item.requiredFor.includes(entityType as EntityTypeCode)
   );
 }
 
 export function getDocumentTemplates(countryCode: CountryCode, entityType: string) {
-  const config = jurisdictions[countryCode];
+  const config = availableJurisdictions[countryCode];
+  if (!config) return [];
   return config.documentTemplates.filter((doc) =>
-    doc.applicableTo.includes(entityType as never)
+    doc.applicableTo.includes(entityType as EntityTypeCode)
   );
 }
 
 export function getBankingGuidance(countryCode: CountryCode) {
-  return jurisdictions[countryCode].bankingGuidance;
+  const config = availableJurisdictions[countryCode];
+  return config?.bankingGuidance ?? { recommendations: [], requirements: [], tips: [] };
 }
